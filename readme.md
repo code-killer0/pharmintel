@@ -1,2 +1,2 @@
 ## FE == Next.js + TS 
-## BE == Fastify 
+## BE == FastAPI
