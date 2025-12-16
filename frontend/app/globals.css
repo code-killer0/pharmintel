@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@source "../app/**/*.{js,ts,jsx,tsx}";
+
+body {
+  background-color: #050505;
+}
+
+@import "tw-animate-css";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -116,6 +124,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
