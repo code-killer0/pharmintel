@@ -12,6 +12,8 @@ langchain-community
 # LLMs / Model APIs
 openai
 tiktoken
+langchain-google-genai
+google-generativeai
 
 # Data handling
 pandas

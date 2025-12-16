@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 export default function AgentRunner() {
     const [query, setQuery] = useState("");
@@ -13,7 +14,7 @@ export default function AgentRunner() {
         setResult(null);
 
         try {
-            const res = await fetch("http://localhost:8000/agents/run", {
+            const res = await fetch("http://localhost:8000/chat/ask", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ query }),
@@ -28,48 +29,70 @@ export default function AgentRunner() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
-            <h2 className="text-xl font-bold mb-4">PharmaIntel Agent Runner</h2>
+        <div className="max-w-4xl mx-auto p-8 bg-white shadow-xl rounded-2xl border border-gray-100">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">Start Your Analysis</h2>
 
-            <div className="flex gap-2">
+            <div className="flex gap-3 mb-8">
                 <input
                     type="text"
-                    className="w-full border p-2 rounded"
-                    placeholder="Enter a drug or disease name..."
+                    className="flex-1 border border-gray-300 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm text-gray-700 placeholder-gray-400"
+                    placeholder="E.g., Repurposing opportunities for Sildenafil..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && runAgent()}
                 />
                 <button
                     onClick={runAgent}
                     disabled={loading}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                 >
-                    {loading ? "Running..." : "Search"}
+                    {loading ? (
+                        <span className="flex items-center gap-2">
+                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Analyzing...
+                        </span>
+                    ) : "Generate Report"}
                 </button>
             </div>
 
             {result && (
-                <div className="mt-6 p-4 bg-gray-50 rounded text-left">
-                    <h3 className="font-semibold text-lg mb-2">Results:</h3>
-                    <p className="text-gray-700 mb-4">{result.synthesis}</p>
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="p-8 bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl shadow-sm">
+                        <h3 className="font-bold text-xl mb-4 text-gray-900 border-b pb-2">Consolidated Strategic Report</h3>
+                        <div className="prose prose-blue max-w-none text-gray-700">
+                            <ReactMarkdown>{result.response}</ReactMarkdown>
+                        </div>
+                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <h4 className="font-bold text-blue-600">PubMed Articles</h4>
-                            <ul className="list-disc pl-4 text-sm mt-1">
-                                {result.pubmed_results?.map((item: any, i: number) => (
-                                    <li key={i} className="mb-1">{item.title}</li>
-                                ))}
-                            </ul>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="p-6 bg-blue-50 border border-blue-100 rounded-xl">
+                            <h4 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
+                                🔬 Clinical Trials
+                            </h4>
+                            <div className="text-sm text-blue-900 overflow-y-auto max-h-60 whitespace-pre-wrap">
+                                {result.debug_info?.clinical || "No data."}
+                            </div>
                         </div>
 
-                        <div>
-                            <h4 className="font-bold text-green-600">Clinical Trials</h4>
-                            <ul className="list-disc pl-4 text-sm mt-1">
-                                {result.clinical_trials_results?.map((item: any, i: number) => (
-                                    <li key={i} className="mb-1">{item.title} ({item.status})</li>
-                                ))}
-                            </ul>
+                        <div className="p-6 bg-purple-50 border border-purple-100 rounded-xl">
+                            <h4 className="font-bold text-purple-800 mb-3 flex items-center gap-2">
+                                📜 Patent Landscape
+                            </h4>
+                            <div className="text-sm text-purple-900 overflow-y-auto max-h-60 whitespace-pre-wrap">
+                                {result.debug_info?.patent || "No data."}
+                            </div>
+                        </div>
+
+                        <div className="p-6 bg-emerald-50 border border-emerald-100 rounded-xl">
+                            <h4 className="font-bold text-emerald-800 mb-3 flex items-center gap-2">
+                                📈 Market Insights (IQVIA)
+                            </h4>
+                            <div className="text-sm text-emerald-900 overflow-y-auto max-h-60 whitespace-pre-wrap">
+                                {result.debug_info?.market || "No data."}
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     ENVIRONMENT: str = "dev"
     OPENAI_API_KEY: str = ""
-    # Add other keys as needed
+    GOOGLE_API_KEY: str = ""
 
     class Config:
         env_file = ".env"
